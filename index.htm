@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+</head>
+
+<body style="background-color: AntiqueWhite;">
+<div style=" font-size:2em; padding:5px;" class="form-floating">
+Quest Level
+<textarea class="form-control" id="questLevel" name="questLevel" style="width: 100%; height: 50px;  font-size:1em; padding:10px;">
+1
+</textarea>
+</div>
+<div style="padding:5px;" class="form-floating">
+<button class="form-control" onclick="openRoom()" style="font-size:1.5em; padding:10px; background-color: LightGrey;">Open A Room</button>
+</div>
+<div style="font-size:1em;padding:5px;">
+<textarea class="form-control" id="roomContents" name="roomContents"  style="width: 100%; height: 250px; font-size:1.5em;">
+Room Contents
+</textarea>
+</div>
+<div style="font-size:1em;padding:5px;" class="form-floating">
+<button style="font-size:1.5em;padding:10px;padding:10px;background-color: LightGrey;"class="form-control" onclick="openHall()">Open A Hall</button>
+</div>
+<div style="padding:5px;" class="form-floating">
+<textarea class="form-control" id="hallContents" name="hallContents" style="width: 100%; height: 150px; font-size:1.5em;padding:10px;">
+Hall Contents
+</textarea>
+</div>
+<div style="padding:5px;" class="form-floating">
+<button class="form-control" onclick="openSearch()" style="font-size:1.5em;padding:10px;background-color: LightGrey;">Open Search Item</button>
+</div>
+<div style="padding:5px;" class="form-floating">
+<textarea class="form-control" id="searchContents" name="searchContents" style="width: 100%; height: 50px; font-size:1.5em; padding:10px;">
+Search Item Contents
+</textarea>
+</div>
+
+
+<script>
+var numDoors=0;
+var doorLocation="";
+var numItems=0;
+var itemType=0;
+var creatureType=0;
+var furnitureType=0;
+var randomChance=0;
+var spellCount=0;
+var myList="The contents of the room are:" + '\n' ;
+
+
+
+
+
+function openRoom() {
+  
+	//myList="The contents of the room are:" + '\n' + '\n'  ;
+	//Switched to just using a timestamp so we can be sure things have changed	
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	myList = "(" + text + ")" + '\n' ;
+	
+	//Calculate number of doors
+	numDoors=Math.floor(Math.random() *4);
+	//myList+=numDoors+" NEW DOORS" + '\n'+ '\n';
+
+	while(numDoors>0){
+		doorLocation=Math.floor(Math.random()*3);
+		switch(doorLocation){
+			case 1:
+				myList+= '\t' + "Door on left side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+			case 2:
+				myList+= '\t' + "Door on right side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+			default:
+				myList+= '\t' + "Door on opposite side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+		}
+		numDoors-=1;
+	}
+
+	//Get number of items
+	numItems=Math.floor(Math.random()*100);
+	//alert(numItems);
+	switch(true){
+			case (numItems<10):
+				numItems=0;
+				break;
+			case (numItems<25):
+				numItems=1;
+				break;
+			case (numItems<40):
+				numItems=2;
+				break;
+			case (numItems<55):
+				numItems=3;
+				break;
+			case (numItems<70):
+				numItems=4;
+				break;
+			case (numItems<85):
+				numItems=5;
+				break;
+			default:
+				numItems=6;
+				break;
+	}
+
+	while(numItems>0){
+		itemType=Math.floor(Math.random()*3);
+		switch(itemType){
+			case 1: //searchable item
+				myList+='\t' + "Search Item: " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			case 2: //furniture
+				//myList+="Furniture: " + Math.floor((Math.random()*12)+1)+'\n';
+				furnitureType=Math.floor(Math.random()*12);
+				switch(furnitureType){
+					case 1:
+						myList+='\t' + "Throne: "
+						break;
+					case 2:
+						myList+='\t' + "Tomb: "
+						break;
+					case 3:
+						myList+='\t' + "Rack: "
+						break;
+					case 4:
+						myList+='\t' + "Sorcerer's Table: "
+						break;
+					case 5:
+						myList+='\t' + "Alchemist Bench: "
+						break;
+					case 6:
+						myList+='\t' + "Fireplace(Against nearest wall if possible): "
+						break;
+					case 7:
+						myList+='\t' + "Weapons Rack: "
+						break;
+					case 8,9:
+						myList+='\t' + "Table: "
+						break;
+					case 8,9:
+						myList+='\t' + "Cupboard: "
+						break;
+					default:
+						myList+='\t' + "Bookshelf: "
+						break;
+				}
+				myList+= Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			default: //creature				
+				creatureType=Math.floor(Math.random()*100)-10;
+				creatureType+=(parseInt(document.getElementById("questLevel").value,10));
+				
+				switch(true){
+					case (creatureType<20):
+						myList+='\t' + "Goblin: ";
+						break;
+					case (creatureType<38):
+						myList+='\t' + "Orc: ";
+						break;
+					case (creatureType<55):
+						myList+='\t' + "Skeleton: ";
+						break;
+					case (creatureType<70):
+						myList+='\t' + "Zombie: ";
+						break;
+					case (creatureType<80):
+						myList+='\t' + "Abomination: ";
+						break;
+					case (creatureType<90):
+						myList+='\t' + "Mummy: ";
+						break;
+					case (creatureType<99):
+						myList+='\t' + "Dread Warrior";
+						randomChance=Math.floor(Math.random()*20)+parseInt(document.getElementById("questLevel").value,10);
+						if (randomChance>19){ 
+							spellCount=Math.floor(Math.random()*(randomChance-19));
+							if (spellCount>0){
+								if(spellCount>5){
+									//Don't let them have too many Dread Spells, it'll get ridiculous.
+									spellCount=5;
+								}
+								myList+="(" + spellCount + " Dread Spells Drawn From Deck)";
+							} 
+						}
+						myList+=": ";
+						break;
+					default:
+						myList+='\t' + "Gargoyle";
+						randomChance=Math.floor(Math.random()*20)+parseInt(document.getElementById("questLevel").value,10);
+						if (randomChance>19){ 
+							spellCount=Math.floor(Math.random()*(randomChance-19));
+							if (spellCount>0){
+								if(spellCount>5){
+									//Don't let them have too many Dread Spells, it'll get ridiculous.
+									spellCount=5;
+								}
+								myList+="(" + spellCount + " Dread Spells Drawn From Deck)";
+							} 
+						}
+						myList+=": ";
+						break;
+				}
+				myList+= Math.floor((Math.random()*12)+1)+'\n';
+				break;
+		}
+		numItems-=1;
+	}
+	
+	
+	//Update textarea to show what we now have
+	document.getElementById("roomContents").value = myList;
+}
+
+function openHall(){
+
+	//myList="The contents of the hall are:" + '\n' + '\n'  ;
+	//Switched to timestamp so we can see that contents have changed
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	myList = "(" + text + ")" + '\n' ;
+	
+	//Calculate number of doors
+	numDoors=Math.floor(Math.random() *4)+1;
+	if(numDoors==0){
+		myList+='\t' + "Hallway is empty!";
+	}	;
+
+	while(numDoors>0){
+		doorLocation=Math.floor(Math.random()*60);
+		switch(true){
+			case (doorLocation<24):
+				myList+='\t' + "Door on the left side: " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			case (doorLocation<48):
+				myList+='\t' + "Door on the right side: " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			case (doorLocation<56):						
+				
+				creatureType=Math.floor(Math.random()*100)-20;
+				creatureType+=(parseInt(document.getElementById("questLevel").value,10));
+				
+				switch(true){
+					case (creatureType<20):
+						myList+='\t' + "Goblin: "
+						break;
+					case (creatureType<38):
+						myList+='\t' + "Orc: "
+						break;
+					case (creatureType<55):
+						myList+='\t' + "Skeleton: "
+						break;
+					case (creatureType<70):
+						myList+='\t' + "Zombie: "
+						break;
+					case (creatureType<80):
+						myList+='\t' + "Abomination: "
+						break;
+					case (creatureType<90):
+						myList+='\t' + "Mummy: "
+						break;
+					case (creatureType<99):
+						myList+='\t' + "Dread Warrior";
+						randomChance=Math.floor(Math.random()*20)+parseInt(document.getElementById("questLevel").value,10);
+						if (randomChance>20){ 
+							spellCount=Math.floor(Math.random()*(randomChance-19));
+							if (spellCount>0){
+								if(spellCount>3){
+									//Don't let them have too many Dread Spells, it'll get ridiculous.
+									spellCount=3;
+								}
+								myList+="(" + spellCount + " Dread Spells Drawn From Deck)";
+							} 
+						}
+						myList+=": ";
+						break;
+					default:
+						myList+='\t' + "Gargoyle";
+						randomChance=Math.floor(Math.random()*20)+parseInt(document.getElementById("questLevel").value,10);
+						if (randomChance>23){ 
+							spellCount=Math.floor(Math.random()*(randomChance-19));
+							if (spellCount>0){
+								if(spellCount>2){
+									//Don't let them have too many Dread Spells, it'll get ridiculous.
+									spellCount=2;
+								}
+								myList+="(" + spellCount + " Dread Spells Drawn From Deck)";
+							} 
+						}
+						myList+=": ";
+						break;
+				}
+				myList+=Math.floor((Math.random()*12)+1)+'\n';
+				
+				break;
+			default:
+				myList+='\t' + "Block: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+		}
+		numDoors-=1;
+	}
+	myList+='\n';
+	
+	//Update textarea to show what we now have
+	document.getElementById("hallContents").value = myList;
+}
+
+function openSearch(){
+
+	//Adding a timestamp so we can be sure contents have changed
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	myList = "(" + text + ") " ;
+
+	myList+="The searchable item is";
+	
+	itemType=Math.floor(Math.random() *100)+1;
+	
+	switch (true){
+		case (itemType<50):
+			randomChance=Math.floor(Math.random()*100);
+			itemType=parseInt(document.getElementById("questLevel").value,10);
+			if(itemType>20){
+				//Don't want there to be more than 20% chance this is an artifact and not a treasure.
+				itemType=10;
+			}
+			if (randomChance<itemType){
+				//It's an artifact
+				myList+=" an artifact!";
+			}else{
+				//Just a treasure
+				myList+=" treasure!";
+			}
+			break;						
+		case (itemType<66):
+		
+			switch(Math.floor(Math.random()*4)){
+				case 1:
+					myList+=" a falling block trap.";
+					break;
+				case 2:
+					myList+=" a spear trap.";
+					break;
+				default:
+					mylist+=" a pit trap.";
+					break;
+			}			
+			break;
+		case (itemType<82):
+			myList+=" a secret door. (If not against an outside wall this becomes 25 gold)";
+			break;
+		default:
+			myList+= " a heal potion. (heals up to 4 body points)";
+			break;
+	}	
+		
+	//Update textarea to show what we now have
+	document.getElementById("searchContents").value = myList;
+
+}
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>
