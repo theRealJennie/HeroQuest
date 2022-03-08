@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<style>
+	textarea{
+		font-size: 2.5rem !important;
+	}
+	div{
+		font-size: 2.5rem !important;
+		padding-bottom: 5px !important;
+	}	
+	button{
+		font-size: 2.5rem !important;
+		background-color: lightgray !important;
+	}
+</style>
+</head>
+
+<body style="background-color: AntiqueWhite;">
+<div class="row">
+	<div class="col-sm">
+		Quest Level:
+	</div>
+	<div class="col-sm">
+		<textarea class="form-control" id="questLevel" rows=1 name="questLevel"></textarea>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm">
+		Max Rooms:
+	</div>
+	<div class="col-sm">
+		<textarea class="form-control" id="maxRooms" rows=1 name="maxRooms"></textarea>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="openRoom()">Open A Room</button>
+	</div>
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="openRoom(1)">Open Last Room</button>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="openHall()">Open A Hall</button>
+	</div>
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="openSearch()">Open Search Item</button>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="wanderingMonster()">Get Wandering Monster</button>
+	</div>
+	<div class="col-sm">
+		
+	</div>
+</div>
+<div>
+<textarea class="form-control" id="results" rows=12 name="results">
+</textarea>
+</div>
+
+
+
+
+<script>
+var numDoors=0;
+var doorLocation="";
+var numItems=0;
+var itemType=0;
+var creatureType=0;
+var furnitureType=0;
+var randomChance=0;
+var spellCount=0;
+var roomCount=0;
+var myList="The contents of the room are:" + '\n' ;
+
+
+function getMonster(isWandering=0, questLevel=0, isHall=0){
+	//This will return a monster. Has option for wandering monster so it'll know not to give Dread Warrior or Gargoyle and has a lower chance of being a goblin or skeleton.
+	
+	var retVal="";
+	creatureType=Math.floor(Math.random()*100)-10;
+	creatureType+=questLevel;
+	
+	if(isWandering==1){
+		if(creatureType<20){
+			//We want less chance of goblin, so is creatureType<20 we are going to add to it. This doesn't eliminate chance of goblin, just reduces it.
+			creatureType+=10;
+		}
+		if(creatureType>89){
+			//No Dread Warriors or Gargoyles as wandering monsters.
+			creatureType=89;
+		}
+	}
+	
+	switch(true){
+		case (creatureType<20):
+			retVal+="Goblin";
+			break;
+		case (creatureType<38):
+			retVal+="Orc";
+			break;
+		case (creatureType<55):
+			retVal+="Skeleton";
+			break;
+		case (creatureType<70):
+			retVal+="Zombie";
+			break;
+		case (creatureType<80):
+			retVal+="Abomination";
+			break;
+		case (creatureType<90):
+			retVal+="Mummy";
+			break;
+		case (creatureType<99):
+			retVal+="Dread Warrior";
+			randomChance=Math.floor(Math.random()*20)+questLevel;
+			if (randomChance>19){ 
+				spellCount=Math.floor(Math.random()*(randomChance-19));
+				if (spellCount>0){
+					if(spellCount>5){
+						//Don't let them have too many Dread Spells, it'll get ridiculous.
+						if(isHall==1){
+							spellCount=3;
+						}else{
+							spellCount=5;
+						}
+					}
+					retVal+="(" + spellCount + " Dread Spells Drawn From Deck)";
+				} 
+			}			
+			break;
+		default:
+			retVal+="Gargoyle";
+			randomChance=Math.floor(Math.random()*20)+parseInt(document.getElementById("questLevel").value,10);
+			if (randomChance>19){ 
+				spellCount=Math.floor(Math.random()*(randomChance-19));
+				if (spellCount>0){
+					if(spellCount>5){
+						//Don't let them have too many Dread Spells, it'll get ridiculous.
+						if(isHall==1){
+							spellCount=2;
+						}else{
+							spellCount=5;
+						}
+					}
+					retVal+="(" + spellCount + " Dread Spells Drawn From Deck)";
+				} 
+			}
+			break;
+	}
+	//retVal+= Math.floor((Math.random()*12)+1)+'\n';
+	return retVal;
+	
+}
+
+function getFurniture(){
+	var furnType="";
+	
+	furnitureType=Math.floor(Math.random()*12);
+	switch(furnitureType){
+		case 1:
+			furnType+="Throne"
+			break;
+		case 2:
+			furnType+="Tomb"
+			break;
+		case 3:
+			furnType+="Rack"
+			break;
+		case 4:
+			furnType+="Sorcerer's Table"
+			break;
+		case 5:
+			furnType+="Alchemist Bench"
+			break;
+		case 6:
+			furnType+="Fireplace(Against nearest wall if possible"
+			break;
+		case 7:
+			furnType+="Weapons Rack"
+			break;
+		case 8,9:
+			furnType+="Table"
+			break;
+		case 8,9:
+			furnType+="Cupboard"
+			break;
+		default:
+			furnType+="Bookshelf"
+			break;
+	}				
+	
+	return furnType;
+}
+
+function wanderingMonster(){
+	const d = new Date();
+	let text = d.toLocaleTimeString();	
+	let questLevel=(parseInt(document.getElementById("questLevel").value,10));
+	
+	myList = "(" + text + ")" ;	
+	
+	//Make sure they set a quest level before beginning.
+	if(document.getElementById("questLevel").value.length==0){
+		document.getElementById("results").value = myList + " Please select the quest level.";
+		return;
+	}	
+		
+	myList+=" " + getMonster(1,questLevel) ;
+	document.getElementById("results").value = myList;
+}
+
+function openRoom(isLastRoom=0) {
+  	
+	//Added a timestamp so we can be sure things have changed	
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	let questLevel=(parseInt(document.getElementById("questLevel").value,10))
+	let roomMax=(parseInt(document.getElementById("maxRooms").value,10))
+	let firstItem=1;
+	
+	myList = "(" + text + ")" ;	
+	
+	//Make sure they set a quest level before beginning.
+	if(document.getElementById("questLevel").value.length<=0){
+		document.getElementById("results").value = myList + " Please select the quest level";
+		return;
+	}	
+	
+	if(isLastRoom==0){
+		if(roomCount==roomMax-1){
+			myList+="((Last Room))";
+		}else{
+			if(roomCount>=roomMax){
+			myList+='\n' + "((Exceeds Max Room Count))";
+			document.getElementById("results").value = myList;
+			return;
+			}
+		}	
+	}
+	
+	myList+= '\n' ;	
+		
+	//Calculate number of doors
+	numDoors=Math.floor(Math.random() *4);
+	if(isLastRoom==1){
+		//No new doors added in last room.
+		numDoors=0;
+	}
+
+	while(numDoors>0){
+		doorLocation=Math.floor(Math.random()*3);
+		switch(doorLocation){
+			case 1:
+				myList+= '\t' + "Door on left side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+			case 2:
+				myList+= '\t' + "Door on right side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+			default:
+				myList+= '\t' + "Door on opposite side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+		}
+		numDoors-=1;
+	}
+
+	//Get number of items
+	numItems=Math.floor(Math.random()*100);
+	//alert(numItems);
+	switch(true){
+			case (numItems<10):
+				numItems=0;
+				break;
+			case (numItems<25):
+				numItems=1;
+				break;
+			case (numItems<40):
+				numItems=2;
+				break;
+			case (numItems<55):
+				numItems=3;
+				break;
+			case (numItems<70):
+				numItems=4;
+				break;
+			case (numItems<85):
+				numItems=5;
+				break;
+			default:
+				numItems=6;
+				break;
+	}
+
+	while(numItems>0){		
+		itemType=Math.floor(Math.random()*30);
+		if (isLastRoom==1){
+			//Only creatures will be added in last room.
+			itemType=30;
+		}
+		switch(true){
+			case (itemType<=8): //searchable item
+				myList+='\t' + "Search Item" 
+				break;
+			case (itemType<=19): //furniture				
+				myList+= '\t' + getFurniture()
+				break;
+			default: //creature					
+				myList+='\t'+getMonster(0,questLevel) 				
+				break;
+		}
+		
+		myList+=": " + Math.floor((Math.random()*12)+1)
+		if(firstItem==1){
+			//Select a starting corner.
+			switch(Math.random()*4){
+				case 1:
+					myList+=" from near-left corner"
+				case 2:
+					myList+=" from near-right corner"
+				case 3:
+					myList+=" from far-left corner"
+				default:
+					myList+=" from far-right corner"
+			}
+			firstItem=0;
+		}
+		myList+='\n';	
+		
+		numItems-=1;
+	}
+	
+	
+	//Update textarea to show what we now have
+	document.getElementById("results").value = myList;
+	roomCount+=1;
+}
+
+function openHall(){
+
+	//myList="The contents of the hall are:" + '\n' + '\n'  ;
+	//Switched to timestamp so we can see that contents have changed
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	
+	
+	myList = "(" + text + ")";
+	
+	//Make sure they set a quest level before beginning.
+	if(document.getElementById("questLevel").value.length<=0){
+		document.getElementById("results").value = myList + " Please select the quest level.";
+		return;
+	}
+	
+	myList+='\n' ;
+	
+	//Calculate number of doors
+	numDoors=Math.floor(Math.random() *4)+1;
+	if(numDoors==0){
+		myList+='\t' + "Hallway is empty!";
+	}	;
+
+	while(numDoors>0){
+		doorLocation=Math.floor(Math.random()*60);
+		switch(true){
+			case (doorLocation<24):
+				myList+='\t' + "Door on the left side: " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			case (doorLocation<48):
+				myList+='\t' + "Door on the right side: " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			case (doorLocation<56):						
+				myList+='\t'+getMonster(0,questLevel,1) + ": " + Math.floor((Math.random()*12)+1)+'\n';	
+			default:
+				myList+='\t' + "Block: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+		}
+		numDoors-=1;
+	}
+	myList+='\n';
+	
+	//Update textarea to show what we now have
+	document.getElementById("results").value = myList;
+}
+
+function openSearch(){
+
+	//Adding a timestamp so we can be sure contents have changed
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	
+	myList = "(" + text + ") " ;
+	
+	//Make sure they set a quest level before beginning.
+	if(document.getElementById("questLevel").value.length<=0){
+		document.getElementById("results").value = myList + "Please select the quest level.";
+		return;
+	}
+	
+	
+
+	myList+="The searchable item is";
+	
+	itemType=Math.floor(Math.random() *100)+1;
+	
+	switch (true){
+		case (itemType<50):
+			randomChance=Math.floor(Math.random()*100);
+			itemType=parseInt(document.getElementById("questLevel").value,10);
+			if(itemType>20){
+				//Don't want there to be more than 20% chance this is an artifact and not a treasure.
+				itemType=10;
+			}
+			if (randomChance<itemType){
+				//It's an artifact
+				myList+=" an artifact!";
+			}else{
+				//Just a treasure
+				myList+=" treasure!";
+			}
+			break;						
+		case (itemType<66):
+		
+			switch(Math.floor(Math.random()*5)){
+				case 1:
+					myList+=" a falling block trap. Roll 3 combat dice and suffer 1 damage for each skull. Must immediately move off of square and square is now blocked and impassable.";
+					break;
+				case 2:
+					myList+=" a spear trap. Roll 1 combat die and suffer one damage if a skull is rolled.";
+					break;
+				case 3:
+					myList+=" a horde of rats. Place 3 rat tokens on spaces around hero(rats can share a space). Rate immediately attack hero with 1 attack die each. On future turns rats may move up to 6 spaces and have 1 attack die, 1 defense die, 1 body point, and 1 mind point."
+				case 4:
+					myList+=" a falling skull trap. Hero rolls a combat die and suffers 1 damage if a skull is rolled. Place pile of skulls on space hero is located. When passing over this space in the future this space counts as two spaces because of how you must step over and around the skulls."
+				default:
+					mylist+=" a pit trap. Suffer one damage. Roll one less combat die while in pit. May move out on any subsequent turns. Pit remains in place and must either be jumped or stepped into in the future.";
+					break;
+			}			
+			break;
+		case (itemType<82):
+			myList+=" a secret door. (If not against an outside wall this becomes 25 gold. If in a corner, opens to wall farthest from entering doorway)";
+			break;
+		default:
+			myList+= " a heal potion. (heals up to 4 body points)";
+			break;
+	}	
+		
+	//Update textarea to show what we now have
+	document.getElementById("results").value = myList;
+
+}
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>
