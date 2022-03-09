@@ -123,10 +123,12 @@ function getMonster(isWandering=0, questLevel=0, isHall=0){
 	//This will return a monster. Has option for wandering monster so it'll know not to give Dread Warrior or Gargoyle and has a lower chance of being a goblin or skeleton.
 	
 	var retVal="";
+	let creatureType=0;
 	creatureType=Math.floor(Math.random()*100)-10;
-	creatureType+=questLevel.value-10;
-	//alert(Math.floor(Math.random()*100)-10);
-		
+	
+	//questLevel=+questLevel||0;
+	creatureType+=(questLevel-10);
+			
 	if(isWandering==1){
 		if(creatureType<20){
 			//We want less chance of goblin, so is creatureType<20 we are going to add to it. This doesn't eliminate chance of goblin, just reduces it.
@@ -137,7 +139,7 @@ function getMonster(isWandering=0, questLevel=0, isHall=0){
 			creatureType=89;
 		}
 	}
-	//alert(creatureType);
+	
 	switch(true){
 		case (creatureType<20):
 			retVal+="Goblin";
