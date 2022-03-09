@@ -83,7 +83,7 @@ Additional Rules
 <p>Start with the stairs in the center of the middle room and one closed door in the middle of each side of the room.
 </p>
 <p>
-When you enter a hallway, use the Open A Hall button to find out what is in the hall. Always generate a hall as the character gets to it, but only the first time you see that hall. All hall items are placed starting at left side when facing out from center room, and starting at outside wall or outside corners in for the long hallways. 
+When you enter a hallway, use the Open A Hall button to find out what is in the hall. Always generate a hall as the character gets to it, but only the first time you see that hall. All hall items are placed starting at left side when facing out from center room, and starting at outside wall or outside corners in for the long hallways. There is a left/right designation given. This applies to doorways on halls that have walls touching rooms on both sides, and also for creatures and blocks in the double wide hallway.
 </p>
 <p>
 When you first open a door, use the Open A Room button to find out what is in the room. You'll find where doors should be placed, as well as furniture, search items, and creatures. Move in a clockwise direction and spiral inward when counting to the next item. The number you see is from the starting position for the first item and from the previous item for subsequent items. If an item lands in a space it cannot occupy(not enough spaces for a table, for ex.) it is simply not placed. The only exception to this is the fireplace, which can be placed against the nearest wall. No furniture can block a door. When counting spaces, skip spaces already occupied.
@@ -98,11 +98,13 @@ Potions: Typically, you must stand directly beside another hero to exchange poti
 Line of sight: This is usually a straight line and cannot pass through other heros or creatures. While this is typically the case, for these quests use this more liberally. Typically, other heros can see over the dwarf, for example. And a diagonal line of sight may obviously see between two other heroes, and if it looks that way then go with that and don't be picky.
 </p>
 <p>
-Creature Movements: Creatures will move in the most obvious way and perform the most obvious attacks possible. If there is a hero closer than the others, they'd likely go toward that hero, for example. If a hero has been attacking them, they'd likely attack back. Just use common sense.
+Creatures: Creatures will move in the most obvious way and perform the most obvious attacks possible. If there is a hero closer than the others, they'd likely go toward that hero, for example. If a hero has been attacking them, they'd likely attack back. Just use common sense.
+If you run out of a creature, replace with the next toughest creature available on the chart. If no tougher creatures are available, replace with next weakest available.
 </p>
 <p>
 Exiting: When you've cleared all of the lair, return to the stairs. But you'll find a surprise waiting for you there. Use the Open Exit Room button to find out if any creatures have snuck in behind you and cut off your exit. If so, you have to kill them before you can leave.
 </p>
+
 
 <script>
 var numDoors=0;
@@ -241,11 +243,11 @@ function wanderingMonster(){
 	let text = d.toLocaleTimeString();	
 	let questLevel=(parseInt(document.getElementById("questLevel").value,10));
 	
-	myList = "(" + text + ")" ;	
+	myList = "(" + text + ")(Wandering Monster)" + '\n' ;	
 	
 	//Make sure they set a quest level before beginning.
 	if(document.getElementById("questLevel").value.length==0){
-		document.getElementById("results").value = myList + " Please select the quest level.";
+		document.getElementById("results").value = myList + "Please select the quest level.";
 		return;
 	}	
 		
@@ -262,11 +264,11 @@ function openRoom(isLastRoom=0) {
 	let roomMax=(parseInt(document.getElementById("maxRooms").value,10))
 	let firstItem=1;
 	
-	myList = "(" + text + ")" ;	
+	myList = "(" + text + ")(Room)" ;	
 	
 	//Make sure they set a quest level before beginning.
 	if(document.getElementById("questLevel").value.length<=0){
-		document.getElementById("results").value = myList + " Please select the quest level";
+		document.getElementById("results").value = myList + '\n' + " Please select the quest level";
 		return;
 	}	
 	
@@ -333,18 +335,34 @@ function openRoom(isLastRoom=0) {
 				numItems=6;
 				break;
 	}
+	
+	//Increase number of items on higher levels? This has effect of increasing number of creatures, really, since odds are we won't fit more furniture in a lot of cases.
+	if(questLevel>=10){
+		numItems+=1;
+	}else{
+		if(questLevel>=20){
+			numItems+=2;
+		}
+	}
 
 	while(numItems>0){		
-		itemType=Math.floor(Math.random()*30);
+	
+		//adding this section to increase odds of item being a creature, especially in later rooms.
+		let creatureBoost=5 + questLevel;
+					
+		itemType=Math.floor(Math.random()*(30+creatureBoost));
 		if (isLastRoom==1){
 			//Only creatures will be added in last room.
 			itemType=30;
 		}
+		
+		
+		
 		switch(true){
 			case (itemType<=8): //searchable item
 				myList+='\t' + "Search Item" 
 				break;
-			case (itemType<=19): //furniture				
+			case (itemType<=(19+(creatureBoost/4))): //furniture	//Give 1/4 of creatureBoost to furniture			
 				myList+= '\t' + getFurniture()
 				break;
 			default: //creature					
@@ -386,11 +404,11 @@ function openHall(){
 	let text = d.toLocaleTimeString();
 	
 	
-	myList = "(" + text + ")";
+	myList = "(" + text + ")(Hall)";
 	
 	//Make sure they set a quest level before beginning.
 	if(document.getElementById("questLevel").value.length<=0){
-		document.getElementById("results").value = myList + " Please select the quest level.";
+		document.getElementById("results").value = myList + '\n' + " Please select the quest level.";
 		return;
 	}
 	
@@ -406,15 +424,27 @@ function openHall(){
 		doorLocation=Math.floor(Math.random()*60);
 		switch(true){
 			case (doorLocation<24):
-				myList+='\t' + "Door on the left side: " + Math.floor((Math.random()*12)+1)+'\n';
+				myList+='\t' + "Door on left side: " + Math.floor((Math.random()*12)+1)+'\n';
 				break;
 			case (doorLocation<48):
-				myList+='\t' + "Door on the right side: " + Math.floor((Math.random()*12)+1)+'\n';
+				myList+='\t' + "Door on right side: " + Math.floor((Math.random()*12)+1)+'\n';
 				break;
 			case (doorLocation<56):						
-				myList+='\t'+getMonster(0,questLevel,1) + ": " + Math.floor((Math.random()*12)+1)+'\n';	
+				myList+='\t'+getMonster(0,questLevel,1)
+				if(doorLocation%2==0){
+					myList+=" on left side";
+				}else{
+					myList+=" on right side";
+				}
+				myList+= ": " + Math.floor((Math.random()*12)+1)+'\n';	
 			default:
-				myList+='\t' + "Block: " + Math.floor((Math.random()*8)+1)+'\n';
+				myList+='\t' + "Block" 
+				if(doorLocation%2>0){
+					myList+=" on left side";
+				}else{
+					myList+=" on right side";
+				}				
+				myList+= ": " + Math.floor((Math.random()*12)+1)+'\n';
 				break;
 		}
 		numDoors-=1;
@@ -431,7 +461,7 @@ function openSearch(){
 	const d = new Date();
 	let text = d.toLocaleTimeString();
 	
-	myList = "(" + text + ") " ;
+	myList = "(" + text + ")(Search Item)" +'\n' ;
 	
 	//Make sure they set a quest level before beginning.
 	if(document.getElementById("questLevel").value.length<=0){
