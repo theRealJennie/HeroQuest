@@ -107,21 +107,16 @@ Exiting: When you've cleared all of the lair, return to the stairs. But you'll f
 
 
 <script>
-var numDoors=0;
-var doorLocation="";
-var numItems=0;
-var itemType=0;
-var creatureType=0;
-var furnitureType=0;
-var randomChance=0;
-var spellCount=0;
+
+
 var roomCount=0;
-var myList="The contents of the room are:" + '\n' ;
 
 
 function getMonster(isWandering=0, questLevel=0, isHall=0){
 	//This will return a monster. Has option for wandering monster so it'll know not to give Dread Warrior or Gargoyle and has a lower chance of being a goblin or skeleton.
 	
+	let randomChance=0;
+	let spellCount=0;
 	var retVal="";
 	let creatureType=0;
 	creatureType=Math.floor(Math.random()*100)-10;
@@ -244,6 +239,7 @@ function wanderingMonster(){
 	const d = new Date();
 	let text = d.toLocaleTimeString();	
 	let questLevel=(parseInt(document.getElementById("questLevel").value,10));
+	let myList="";
 	
 	myList = "(" + text + ")(Wandering Monster)" + '\n' ;	
 	
@@ -265,8 +261,17 @@ function openRoom(isLastRoom=0) {
 	let questLevel=(parseInt(document.getElementById("questLevel").value,10))
 	let roomMax=(parseInt(document.getElementById("maxRooms").value,10))
 	let firstItem=1;
+	let numDoors=0;
+	let doorLocation=0;
+	let numItems=0;
+	let itemType=0;
+	let myList="";
 	
-	myList = "(" + text + ")(Room)" ;	
+	myList = "(" + text + ")(";
+	if(isLastRoom==1){
+		myList+="Exit ";
+	}
+	myList+="Room)" ;	
 	
 	//Make sure they set a quest level before beginning.
 	if(document.getElementById("questLevel").value.length<=0){
@@ -404,7 +409,10 @@ function openHall(){
 	//Switched to timestamp so we can see that contents have changed
 	const d = new Date();
 	let text = d.toLocaleTimeString();
-	
+	let questLevel=(parseInt(document.getElementById("questLevel").value,10))
+	let numDoors=0;
+	let doorLocation=0;
+	let myList="";
 	
 	myList = "(" + text + ")(Hall)";
 	
@@ -415,6 +423,7 @@ function openHall(){
 	}
 	
 	myList+='\n' ;
+	
 	
 	//Calculate number of doors
 	numDoors=Math.floor(Math.random() *4)+1;
@@ -431,7 +440,7 @@ function openHall(){
 			case (doorLocation<48):
 				myList+='\t' + "Door on right side: " + Math.floor((Math.random()*12)+1)+'\n';
 				break;
-			case (doorLocation<56):						
+			case (doorLocation<56):	
 				myList+='\t'+getMonster(0,questLevel,1)
 				if(doorLocation%2==0){
 					myList+=" on left side";
@@ -462,6 +471,8 @@ function openSearch(){
 	//Adding a timestamp so we can be sure contents have changed
 	const d = new Date();
 	let text = d.toLocaleTimeString();
+	let itemType=0;
+	let myList="";
 	
 	myList = "(" + text + ")(Search Item)" +'\n' ;
 	
