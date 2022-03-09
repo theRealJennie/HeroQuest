@@ -126,7 +126,6 @@ function getMonster(isWandering=0, questLevel=0, isHall=0){
 	let creatureType=0;
 	creatureType=Math.floor(Math.random()*100)-10;
 	
-	//questLevel=+questLevel||0;
 	creatureType+=(questLevel-10);
 			
 	if(isWandering==1){
@@ -351,7 +350,7 @@ function openRoom(isLastRoom=0) {
 	while(numItems>0){		
 	
 		//adding this section to increase odds of item being a creature, especially in later rooms.
-		let creatureBoost=5 + questLevel;
+		let creatureBoost= questLevel/2;
 					
 		itemType=Math.floor(Math.random()*(30+creatureBoost));
 		if (isLastRoom==1){
