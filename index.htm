@@ -121,7 +121,11 @@ function getMonster(isWandering=0, questLevel=0, isHall=0){
 	let creatureType=0;
 	creatureType=Math.floor(Math.random()*100)-10;
 	
-	creatureType+=(questLevel-10);
+	//alert(questLevel);
+	if(questLevel<10){
+		//Had to wrap this in this if statement or else you'd get a larger amount of goblins in every quest before 10;
+		creatureType+=(questLevel-10);
+	}
 			
 	if(isWandering==1){
 		if(creatureType<20){
@@ -266,6 +270,7 @@ function openRoom(isLastRoom=0) {
 	let numItems=0;
 	let itemType=0;
 	let myList="";
+	let startLocation=0;
 	
 	myList = "(" + text + ")(";
 	if(isLastRoom==1){
@@ -380,15 +385,21 @@ function openRoom(isLastRoom=0) {
 		myList+=": " + Math.floor((Math.random()*12)+1)
 		if(firstItem==1){
 			//Select a starting corner.
-			switch(Math.random()*4){
-				case 1:
+			startLocation=Math.random()*3;
+		
+			switch(true){
+				case (startLocation<1):
 					myList+=" from near-left corner"
-				case 2:
+					break;
+				case (startLocation<2):
 					myList+=" from near-right corner"
-				case 3:
+					break;
+				case (startLocation<3):
 					myList+=" from far-left corner"
+					break;
 				default:
 					myList+=" from far-right corner"
+					break;
 			}
 			firstItem=0;
 		}
@@ -448,6 +459,7 @@ function openHall(){
 					myList+=" on right side";
 				}
 				myList+= ": " + Math.floor((Math.random()*12)+1)+'\n';	
+				break;
 			default:
 				myList+='\t' + "Block" 
 				if(doorLocation%2>0){
