@@ -140,7 +140,13 @@ function getMonster(isWandering=0, questLevel=0, isHall=0){
 	
 	switch(true){
 		case (creatureType<20):
-			retVal+="Goblin";
+			//When I added the Ghoul trap I also added the Ghoul here. It seemed reasonable it should replace about 1/4 of the goblins.
+			randomChance=Math.floor(Math.random()*4);
+			if (randomChance==1){
+				retVal+="Ghoul(0 attach, 3 defense. 3 body, 3 mind -- When a hero moves, whoever triggered the ghoul if a trap, or whoever the closest hero at beginning of hero round, is bumped off of their ending move space. The ghoul immediately rolls a red die and the hero must move back along their path that many spaces.)";
+			}else{
+				retVal+="Goblin";
+			}
 			break;
 		case (creatureType<38):
 			retVal+="Orc";
@@ -154,10 +160,13 @@ function getMonster(isWandering=0, questLevel=0, isHall=0){
 		case (creatureType<80):
 			retVal+="Abomination";
 			break;
-		case (creatureType<90):
+		case (creatureType<90:
+			retVal+="Spider(2 attack, 2 defense, 3 body, 1 mind -- Any time a spider does damage to a player that player loses their next turn and cannot attack or defend until after their next turn.)";
+			break;
+		case (creatureType<95):
 			retVal+="Mummy";
 			break;
-		case (creatureType<99):
+		case (creatureType<104):
 			retVal+="Dread Warrior";
 			randomChance=Math.floor(Math.random()*20)+questLevel;
 			if (randomChance>19){ 
