@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<style>
+	textarea{
+	//	font-size: 2.5rem !important;
+	}
+	div{
+		//font-size: 2.5rem !important;
+		padding-bottom: 5px !important;
+	}
+	button{
+		//font-size: 2.5rem !important;
+		background-color: lightgray !important;
+	}
+</style>
+</head>
+
+<body style="background-color: AntiqueWhite;">
+
+<div class="row">
+	<div class="col-sm">
+		Quest Level:
+	</div>
+	<div class="col-sm">
+		<textarea class="form-control" id="questLevel" rows=1 name="questLevel"></textarea>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm">
+		Max Rooms:
+	</div>
+	<div class="col-sm">
+		<textarea class="form-control" id="maxRooms" rows=1 name="maxRooms"></textarea>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="openRoom()">Open A Room</button>
+	</div>
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="openRoom(1)">Open Exit Room</button>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="openHall()">Open A Hall</button>
+	</div>
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="openSearch()">Open Search Item</button>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm">
+		<button class="btn btn-rounded" onclick="wanderingMonster()">Get Wandering Monster</button>
+	</div>
+	<div class="col-sm">
+
+	</div>
+</div>
+<div>
+<textarea class="form-control" id="results" rows=12 name="results">
+</textarea>
+</div>
+
+<h2>
+Your Mission
+</h2>
+<p>
+In the past, dozens of small kingdoms existed side by side, often in a state of war for resources and land. A century ago, King Dunong The Mighty conquered and united all of these lesser kingdoms into one strong realm.
+</p>
+<p>It has existed in this form ever since, with a governor having direct control over each territory that made up the lesser kingdoms. Each of these kingdoms had castles, but over time the underground levels of these castles became infested with evil monsters of all kinds.
+</p>
+<p>Recently, these monsters have found their way out, attacking innocent civilians nearby before returning to their underground base. King Filbon The Kind has hired you, a small band of intrepid heroes, to clean out these lairs so they can be used by the local governors for the good of the people and to protect the people from these vile creatures.
+</p>
+<p>
+You must enter each lair and clear out all the monsters. If you leave even one monster alive, it could escape and attack the public! Kill off all the monsters before you exit, and be heralded by the town as heroes of the realm.
+<h2>
+Additional Rules
+</h2>
+<p>Start with the stairs in the center of the middle room and one closed door in the middle of each side of the room.
+</p>
+<p>
+When you enter a hallway, use the Open A Hall button to find out what is in the hall. Always generate a hall as the character gets to it, but only the first time you see that hall. All hall items are placed starting at left side when facing out from center room, and starting at outside wall or outside corners in for the long hallways. There is a left/right designation given. This applies to doorways on halls that have walls touching rooms on both sides, and also for creatures and blocks in the double wide hallway.
+</p>
+<p>
+When you first open a door, use the Open A Room button to find out what is in the room. You'll find where doors should be placed, as well as furniture, search items, and creatures. Move in a clockwise direction and spiral inward when counting to the next item. The number you see is from the starting position for the first item and from the previous item for subsequent items. If an item lands in a space it cannot occupy(not enough spaces for a table, for ex.) it is simply not placed. The only exception to this is the fireplace, which can be placed against the nearest wall. No furniture can block a door. When counting spaces, skip spaces already occupied.
+</p>
+<p>
+Searching: You do not search for traps or treasure in the regular way. Instead, you must step on a searchable items that was placed and then open it (this is an action). You may find out it is a treasure, a trap, or a secret door.
+</p>
+<p>
+Potions: Typically, you must stand directly beside another hero to exchange potions or other items. Now you can toss a potion to any hero in your line of site or the same room, even over other monsters, heros, and furniture.
+</p>
+<p>
+Line of sight: This is usually a straight line and cannot pass through other heros or creatures. While this is typically the case, for these quests use this more liberally. Typically, other heros can see over the dwarf, for example. And a diagonal line of sight may obviously see between two other heroes, and if it looks that way then go with that and don't be picky.
+</p>
+<p>
+Creatures: Creatures will move in the most obvious way and perform the most obvious attacks possible. If there is a hero closer than the others, they'd likely go toward that hero, for example. If a hero has been attacking them, they'd likely attack back. Just use common sense.
+If you run out of a creature, replace with the next toughest creature available on the chart. If no tougher creatures are available, replace with next weakest available.
+</p>
+<p>
+Exiting: When you've cleared all of the lair, return to the stairs. But you'll find a surprise waiting for you there. Use the Open Exit Room button to find out if any creatures have snuck in behind you and cut off your exit. If so, you have to kill them before you can leave.
+</p>
+
+
+<script>
+
+
+var roomCount=0;
+
+
+function getMonster(isWandering=0, questLevel=0, isHall=0){
+	//This will return a monster. Has option for wandering monster so it'll know not to give Dread Warrior or Gargoyle and has a lower chance of being a goblin or skeleton.
+
+	let randomChance=0;
+	let spellCount=0;
+	var retVal="";
+	let creatureType=0;
+	creatureType=Math.floor(Math.random()*109)-10;
+
+	//alert(questLevel);
+	if(questLevel<10){
+		//Had to wrap this in this if statement or else you'd get a larger amount of goblins in every quest before 10;
+		creatureType+=(questLevel-10);
+	}
+
+	if(isWandering==1){
+		if(creatureType<20){
+			//We want less chance of goblin, so is creatureType<20 we are going to add to it. This doesn't eliminate chance of goblin, just reduces it.
+			creatureType+=10;
+		}
+		if(creatureType>89){
+			//No Dread Warriors or Gargoyles as wandering monsters.
+			creatureType=89;
+		}
+	}
+
+	switch(true){
+		case (creatureType<20):
+			//When I added the Ghoul trap I also added the Ghoul here. It seemed reasonable it should replace about 1/4 of the goblins.
+			randomChance=Math.floor(Math.random()*4);
+			if (randomChance==1){
+				retVal+="Ghoul(0 attack, 3 defense. 3 body, 3 mind -- When the hero nearest the ghoul at the beginning of the hero round moves, they are bumped off of their ending space and must backtrack along their path the number of spaces equal to the roll of one die.)";
+			}else{
+				retVal+="Goblin";
+			}
+			break;
+		case (creatureType<36):
+			retVal+="Orc";
+			break;
+		case (creatureType<53):
+			retVal+="Skeleton";
+			break;
+		case (creatureType<68):
+			retVal+="Zombie";
+			break;
+			case (creatureType<77):
+				retVal+="Abomination";
+				break;
+		case (creatureType>86):
+			retVal="Gorgon(2 attack, 4 defend, 2 body, 1 mind, 5 move -- Each turn a gorgon can attack or put someone to sleep. If they put a hero to sleep, the hero remains asleep until rolling a 6. On each turn, a hero may roll 1 die for each mind point. A hero who is asleep may not attack, defend, move, or perform any action. If a hero awakens at the beginning of their turn, they may continue the turn as normal.)"
+			break;
+		case (creatureType<99):
+			retVal+="Spider(2 attack, 2 defense, 3 body, 1 mind, 7 move -- Any time a spider does damage to a player that player loses their next turn and cannot attack or defend until after their next turn.)";
+			break;
+		case (creatureType<104):
+			retVal+="Mummy";
+			break;
+		case (creatureType<109):
+			retVal+="Dread Warrior";
+			randomChance=Math.floor(Math.random()*20)+questLevel;
+			if (randomChance>19){
+				spellCount=Math.floor(Math.random()*(randomChance-19));
+				if (spellCount>0){
+					if(spellCount>5){
+						//Don't let them have too many Dread Spells, it'll get ridiculous.
+						if(isHall==1){
+							spellCount=3;
+						}else{
+							spellCount=5;
+						}
+					}
+					retVal+="(" + spellCount + " Dread Spells Drawn From Deck)";
+				}
+			}
+			break;
+		default:
+			retVal+="Gargoyle";
+			randomChance=Math.floor(Math.random()*20)+parseInt(document.getElementById("questLevel").value,10);
+			if (randomChance>19){
+				spellCount=Math.floor(Math.random()*(randomChance-19));
+				if (spellCount>0){
+					if(spellCount>5){
+						//Don't let them have too many Dread Spells, it'll get ridiculous.
+						if(isHall==1){
+							spellCount=2;
+						}else{
+							spellCount=5;
+						}
+					}
+					retVal+="(" + spellCount + " Dread Spells Drawn From Deck)";
+				}
+			}
+			break;
+	}
+	//retVal+= Math.floor((Math.random()*12)+1)+'\n';
+	return retVal;
+
+}
+
+function getFurniture(){
+	var furnType="";
+
+	furnitureType=Math.floor(Math.random()*12);
+	switch(furnitureType){
+		case 1:
+			furnType+="Throne"
+			break;
+		case 2:
+			furnType+="Tomb"
+			break;
+		case 3:
+			furnType+="Rack"
+			break;
+		case 4:
+			furnType+="Sorcerer's Table"
+			break;
+		case 5:
+			furnType+="Alchemist Bench"
+			break;
+		case 6:
+			furnType+="Fireplace(Against nearest wall if possible"
+			break;
+		case 7:
+			furnType+="Weapons Rack"
+			break;
+		case 8,9:
+			furnType+="Table"
+			break;
+		case 8,9:
+			furnType+="Cupboard"
+			break;
+		default:
+			furnType+="Bookshelf"
+			break;
+	}
+
+	return furnType;
+}
+
+function wanderingMonster(){
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	let questLevel=(parseInt(document.getElementById("questLevel").value,10));
+	let myList="";
+
+	myList = "(" + text + ")(Wandering Monster)" + '\n' ;
+
+	//Make sure they set a quest level before beginning.
+	if(document.getElementById("questLevel").value.length==0){
+		document.getElementById("results").value = myList + "Please select the quest level.";
+		return;
+	}
+
+	myList+=" " + getMonster(1,questLevel) ;
+	document.getElementById("results").value = myList;
+}
+
+function openRoom(isLastRoom=0) {
+
+	//Added a timestamp so we can be sure things have changed
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	let questLevel=(parseInt(document.getElementById("questLevel").value,10))
+	let roomMax=(parseInt(document.getElementById("maxRooms").value,10))
+	let firstItem=1;
+	let numDoors=0;
+	let doorLocation=0;
+	let numItems=0;
+	let itemType=0;
+	let myList="";
+	let startLocation=0;
+
+	myList = "(" + text + ")(";
+	if(isLastRoom==1){
+		myList+="Exit ";
+	}
+	myList+="Room)" ;
+
+	//Make sure they set a quest level before beginning.
+	if(document.getElementById("questLevel").value.length<=0){
+		document.getElementById("results").value = myList + '\n' + " Please select the quest level";
+		return;
+	}
+
+	if(isLastRoom==0){
+		if(roomCount==roomMax-1){
+			myList+="((Last Room))";
+		}else{
+			if(roomCount>=roomMax){
+			myList+='\n' + "((Exceeds Max Room Count))";
+			document.getElementById("results").value = myList;
+			return;
+			}
+		}
+	}
+
+	myList+= '\n' ;
+
+	//Calculate number of doors
+	numDoors=Math.floor(Math.random() *4);
+	if(isLastRoom==1){
+		//No new doors added in last room.
+		numDoors=0;
+	}
+
+	while(numDoors>0){
+		doorLocation=Math.floor(Math.random()*3);
+		switch(doorLocation){
+			case 1:
+				myList+= '\t' + "Door on left side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+			case 2:
+				myList+= '\t' + "Door on right side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+			default:
+				myList+= '\t' + "Door on opposite side: " + Math.floor((Math.random()*8)+1)+'\n';
+				break;
+		}
+		numDoors-=1;
+	}
+
+	//Get number of items
+	numItems=Math.floor(Math.random()*100);
+	//alert(numItems);
+	switch(true){
+			case (numItems<10):
+				numItems=0;
+				break;
+			case (numItems<25):
+				numItems=1;
+				break;
+			case (numItems<40):
+				numItems=2;
+				break;
+			case (numItems<55):
+				numItems=3;
+				break;
+			case (numItems<70):
+				numItems=4;
+				break;
+			case (numItems<85):
+				numItems=5;
+				break;
+			default:
+				numItems=6;
+				break;
+	}
+
+	//Increase number of items on higher levels? This has effect of increasing number of creatures, really, since odds are we won't fit more furniture in a lot of cases.
+	if(questLevel>=10){
+		numItems+=1;
+	}else{
+		if(questLevel>=20){
+			numItems+=2;
+		}
+	}
+
+	while(numItems>0){
+
+		//adding this section to increase odds of item being a creature, especially in later rooms.
+		let creatureBoost= questLevel/2;
+
+		itemType=Math.floor(Math.random()*(30+creatureBoost));
+		if (isLastRoom==1){
+			//Only creatures will be added in last room.
+			itemType=30;
+		}
+
+
+
+		switch(true){
+			case (itemType<=8): //searchable item
+				myList+='\t' + "Search Item"
+				break;
+			case (itemType<=(19+(creatureBoost/4))): //furniture	//Give 1/4 of creatureBoost to furniture
+				myList+= '\t' + getFurniture()
+				break;
+			default: //creature
+				myList+='\t'+getMonster(0,questLevel)
+				break;
+		}
+
+		myList+=": " + Math.floor((Math.random()*12)+1)
+		if(firstItem==1){
+			//Select a starting corner.
+			startLocation=Math.random()*3;
+
+			switch(true){
+				case (startLocation<1):
+					myList+=" from near-left corner"
+					break;
+				case (startLocation<2):
+					myList+=" from near-right corner"
+					break;
+				case (startLocation<3):
+					myList+=" from far-left corner"
+					break;
+				default:
+					myList+=" from far-right corner"
+					break;
+			}
+			firstItem=0;
+		}
+		myList+='\n';
+
+		numItems-=1;
+	}
+
+
+	//Update textarea to show what we now have
+	document.getElementById("results").value = myList;
+	roomCount+=1;
+}
+
+function openHall(){
+
+	//myList="The contents of the hall are:" + '\n' + '\n'  ;
+	//Switched to timestamp so we can see that contents have changed
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	let questLevel=(parseInt(document.getElementById("questLevel").value,10))
+	let numDoors=0;
+	let doorLocation=0;
+	let myList="";
+
+	myList = "(" + text + ")(Hall)";
+
+	//Make sure they set a quest level before beginning.
+	if(document.getElementById("questLevel").value.length<=0){
+		document.getElementById("results").value = myList + '\n' + " Please select the quest level.";
+		return;
+	}
+
+	myList+='\n' ;
+
+
+	//Calculate number of doors
+	numDoors=Math.floor(Math.random() *4)+1;
+	if(numDoors==0){
+		myList+='\t' + "Hallway is empty!";
+	}	;
+
+	while(numDoors>0){
+		doorLocation=Math.floor(Math.random()*60);
+		switch(true){
+			case (doorLocation<24):
+				myList+='\t' + "Door on left side: " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			case (doorLocation<48):
+				myList+='\t' + "Door on right side: " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			case (doorLocation<56):
+				myList+='\t'+getMonster(0,questLevel,1)
+				if(doorLocation%2==0){
+					myList+=" on left side";
+				}else{
+					myList+=" on right side";
+				}
+				myList+= ": " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+			default:
+				myList+='\t' + "Block"
+				if(doorLocation%2>0){
+					myList+=" on left side";
+				}else{
+					myList+=" on right side";
+				}
+				myList+= ": " + Math.floor((Math.random()*12)+1)+'\n';
+				break;
+		}
+		numDoors-=1;
+	}
+	myList+='\n';
+
+	//Update textarea to show what we now have
+	document.getElementById("results").value = myList;
+}
+
+function openSearch(){
+
+	//Adding a timestamp so we can be sure contents have changed
+	const d = new Date();
+	let text = d.toLocaleTimeString();
+	let itemType=0;
+	let myList="";
+
+	myList = "(" + text + ")(Search Item)" +'\n' ;
+
+	//Make sure they set a quest level before beginning.
+	if(document.getElementById("questLevel").value.length<=0){
+		document.getElementById("results").value = myList + "Please select the quest level.";
+		return;
+	}
+
+
+
+	myList+="The searchable item is";
+
+	itemType=Math.floor(Math.random() *100)+1;
+
+	switch (true){
+		case (itemType<50):
+			randomChance=Math.floor(Math.random()*100);
+			itemType=parseInt(document.getElementById("questLevel").value,10);
+			if(itemType>20){
+				//Don't want there to be more than 20% chance this is an artifact and not a treasure.
+				itemType=10;
+			}
+			if (randomChance<itemType){
+				//It's an artifact
+				myList+=" an artifact!";
+			}else{
+				//Just a treasure
+				myList+=" treasure!";
+			}
+			break;
+		case (itemType<66):
+
+			switch(Math.floor(Math.random()*7)){
+				case 1:
+					myList+=" a falling block trap. Roll 3 combat dice and suffer 1 damage for each skull. Must immediately move off of square and square is now blocked and impassable.";
+					break;
+				case 2:
+					myList+=" a spear trap. Roll 1 combat die and suffer one damage if a skull is rolled.";
+					break;
+				case 3:
+					myList+=" a horde of rats. Place 3 rat tokens on spaces around hero(rats can share a space). Rats immediately attack hero with 1 attack die each. On future turns rats may move up to 6 spaces and have 1 attack die, 1 defense die, 1 body point, and 1 mind point.";
+					break;
+				case 4:
+					myList+=" a giant spider. Place spider next to the hero. The hero immediately takes 1 damage from spider, loses their next turn, and cannot attack or defend until the conclusion of that turn. Spiders have 2 attack, 2 defend, 3 body, and 1 mind point. Any time a spider damages a hero that hero will lose their next turn and cannot attack or defend until the conclusion of that missed turn.";
+					break;
+				case 5:
+					myList+=" a ghoul. Place the ghoul next to the hero. Whenever the hero moves, the ghoul immediately moves to the hero endpoint and bumps the hero back along their path the number of moves equal to the roll of 1 red die. Ghouls have 0 attack, 3 defense, 3 body, and 1 mind point";
+					break;
+				case 6:
+					myList+=" a falling skull trap. Hero rolls a combat die and suffers 1 damage if a skull is rolled. Place pile of skulls on space hero is located. When passing over this space in the future this space counts as two spaces because of how you must step over and around the skulls.";
+					break;
+				default:
+					mylist+=" a pit trap. Suffer one damage. Roll one less combat die while in pit. May move out on any subsequent turns. Pit remains in place and must either be jumped or stepped into in the future.";
+					break;
+			}
+			break;
+		case (itemType<82):
+			myList+=" a secret door. (If not against an outside wall this becomes 25 gold. If in a corner, opens to wall farthest from entering doorway)";
+			break;
+		default:
+			myList+= " a heal potion. (heals up to 4 body points)";
+			break;
+	}
+
+	//Update textarea to show what we now have
+	document.getElementById("results").value = myList;
+
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>
