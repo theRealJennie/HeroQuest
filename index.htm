@@ -143,7 +143,7 @@ function getMonster(isWandering=0, questLevel=0, isHall=0){
 			//When I added the Ghoul trap I also added the Ghoul here. It seemed reasonable it should replace about 1/4 of the goblins.
 			randomChance=Math.floor(Math.random()*4);
 			if (randomChance==1){
-				retVal+="Ghoul(0 attack, 3 defense. 3 body, 3 mind -- When the hero nearest the ghoul at the beginning of the hero round moves, they are bumped off of their ending space and must backtrack along their path the number of spaces equal to the roll of one die.)";
+				retVal+="Ghoul(0 attack, 3 defense. 3 body, 3 mind -- When the hero the ghoul focuses on moves, they are bumped off of their ending space and must backtrack along their path the number of spaces equal to the roll of one die. Ghoul refocuses each turn by rolling a die to randomly select a hero within their line of site.)";
 			}else{
 				retVal+="Goblin";
 			}
